@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Controle OBS</title>
+
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+            padding: 30px;
+        }
+
+        button {
+            padding: 15px 25px;
+            margin: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .cena {
+            background: #444;
+            color: white;
+        }
+
+        .live {
+            background: #e00000;
+            color: white;
+        }
+
+        .gravacao {
+            background: #7000ff;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🎥 Controle OBS</h1>
+
+    <h2>Cenas</h2>
+
+    <button class="cena" onclick="cena('Gameplay')">
+        🎮 Gameplay
+    </button>
+
+    <button class="cena" onclick="cena('Camera')">
+        📷 Câmera
+    </button>
+
+    <button class="cena" onclick="cena('BRB')">
+        ⏸️ BRB
+    </button>
+
+    <h2>Live</h2>
+
+    <button class="live" onclick="comando('/live/iniciar')">
+        🔴 Iniciar Live
+    </button>
+
+    <button class="live" onclick="comando('/live/parar')">
+        ⛔ Parar Live
+    </button>
+
+    <h2>Gravação</h2>
+
+    <button class="gravacao" onclick="comando('/gravacao/iniciar')">
+        ⏺️ Iniciar Gravação
+    </button>
+
+    <button class="gravacao" onclick="comando('/gravacao/parar')">
+        ⏹️ Parar Gravação
+    </button>
+
+    <p id="status">Pronto</p>
+
+    <script>
+
+        async function comando(url) {
+
+            try {
+
+                const resposta = await fetch(url);
+                const dados = await resposta.json();
+
+                if (dados.sucesso) {
+                    document.getElementById("status").innerText =
+                        "✅ Comando executado!";
+                } else {
+                    document.getElementById("status").innerText =
+                        "❌ Erro: " + dados.erro;
+                }
+
+            } catch (erro) {
+
+                document.getElementById("status").innerText =
+                    "❌ Erro de conexão";
+            }
+        }
+
+        function cena(nome) {
+            comando("/cena/" + encodeURIComponent(nome));
+        }
+
+    </script>
+
+</body>
+
+</html>
