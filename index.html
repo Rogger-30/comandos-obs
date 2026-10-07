@@ -1,117 +1,195 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Controle OBS</title>
+    <title>Painel OBS</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
+            margin: 0;
+            padding: 20px;
             background: #111;
             color: white;
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             text-align: center;
-            padding: 30px;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            margin-top: 30px;
+        }
+
+        .grupo {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            max-width: 700px;
+            margin: auto;
         }
 
         button {
-            padding: 15px 25px;
-            margin: 8px;
             border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            border-radius: 10px;
+            padding: 18px 25px;
             font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #333;
+            color: white;
+            min-width: 160px;
         }
 
-        .cena {
-            background: #444;
-            color: white;
+        button:hover {
+            background: #555;
         }
 
         .live {
-            background: #e00000;
-            color: white;
+            background: #c62828;
         }
 
-        .gravacao {
-            background: #7000ff;
-            color: white;
+        .live:hover {
+            background: #e53935;
+        }
+
+        .rec {
+            background: #8e24aa;
+        }
+
+        .rec:hover {
+            background: #ab47bc;
+        }
+
+        #status {
+            margin: 30px auto;
+            padding: 15px;
+            max-width: 600px;
+            background: #222;
+            border-radius: 10px;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>🎥 Controle OBS</h1>
+    <h1>🎥 Painel OBS</h1>
 
-    <h2>Cenas</h2>
+    <h2>🎬 Cenas</h2>
 
-    <button class="cena" onclick="cena('Gameplay')">
-        🎮 Gameplay
-    </button>
+    <div class="grupo">
 
-    <button class="cena" onclick="cena('Camera')">
-        📷 Câmera
-    </button>
+        <button onclick="cena('Gameplay')">
+            🎮 Gameplay
+        </button>
 
-    <button class="cena" onclick="cena('BRB')">
-        ⏸️ BRB
-    </button>
+        <button onclick="cena('Camera')">
+            📷 Câmera
+        </button>
 
-    <h2>Live</h2>
+        <button onclick="cena('BRB')">
+            ⏸️ BRB
+        </button>
 
-    <button class="live" onclick="comando('/live/iniciar')">
-        🔴 Iniciar Live
-    </button>
+    </div>
 
-    <button class="live" onclick="comando('/live/parar')">
-        ⛔ Parar Live
-    </button>
+    <h2>🔴 Live</h2>
 
-    <h2>Gravação</h2>
+    <div class="grupo">
 
-    <button class="gravacao" onclick="comando('/gravacao/iniciar')">
-        ⏺️ Iniciar Gravação
-    </button>
+        <button class="live" onclick="comando('/live/iniciar')">
+            🔴 Iniciar Live
+        </button>
 
-    <button class="gravacao" onclick="comando('/gravacao/parar')">
-        ⏹️ Parar Gravação
-    </button>
+        <button class="live" onclick="comando('/live/parar')">
+            ⛔ Parar Live
+        </button>
 
-    <p id="status">Pronto</p>
+    </div>
+
+    <h2>⏺️ Gravação</h2>
+
+    <div class="grupo">
+
+        <button class="rec" onclick="comando('/gravacao/iniciar')">
+            ⏺️ Iniciar Gravação
+        </button>
+
+        <button class="rec" onclick="comando('/gravacao/parar')">
+            ⏹️ Parar Gravação
+        </button>
+
+    </div>
+
+    <div id="status">
+        🟡 Aguardando comando...
+    </div>
 
     <script>
 
+        // POR ENQUANTO estamos usando o servidor local.
+        const API = "http://localhost:3000";
+
+
         async function comando(url) {
+
+            const status =
+                document.getElementById("status");
+
+            status.innerText =
+                "⏳ Enviando comando...";
 
             try {
 
-                const resposta = await fetch(url);
-                const dados = await resposta.json();
+                const resposta =
+                    await fetch(API + url);
+
+                const dados =
+                    await resposta.json();
 
                 if (dados.sucesso) {
-                    document.getElementById("status").innerText =
-                        "✅ Comando executado!";
+
+                    status.innerText =
+                        "✅ " +
+                        (dados.mensagem ||
+                        "Comando executado!");
+
                 } else {
-                    document.getElementById("status").innerText =
-                        "❌ Erro: " + dados.erro;
+
+                    status.innerText =
+                        "❌ " + dados.erro;
+
                 }
 
             } catch (erro) {
 
-                document.getElementById("status").innerText =
-                    "❌ Erro de conexão";
+                console.error(erro);
+
+                status.innerText =
+                    "❌ Não foi possível conectar ao servidor.";
+
             }
         }
 
+
         function cena(nome) {
-            comando("/cena/" + encodeURIComponent(nome));
+
+            comando(
+                "/cena/" +
+                encodeURIComponent(nome)
+            );
+
         }
 
     </script>
 
 </body>
-
 </html>
