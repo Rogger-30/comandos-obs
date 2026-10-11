@@ -1,195 +1,341 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel OBS</title>
 
-    <title>Painel OBS</title>
+<style>
+* { box-sizing: border-box; }
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+body {
+    margin: 0;
+    padding: 18px;
+    background: #101114;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    max-width: 760px;
+    margin-inline: auto;
+}
 
-        body {
-            margin: 0;
-            padding: 20px;
-            background: #111;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
+h1 { font-size: 24px; margin: 8px 0; }
+h2 { font-size: 18px; margin: 25px 0 12px; }
 
-        h1 {
-            margin-bottom: 30px;
-        }
+.subtitulo {
+    color: #a9abb4;
+    font-size: 13px;
+    margin-bottom: 18px;
+}
 
-        h2 {
-            margin-top: 30px;
-        }
+.painel {
+    background: #1c1e24;
+    border: 1px solid #343741;
+    padding: 14px;
+    border-radius: 16px;
+    margin-bottom: 14px;
+}
 
-        .grupo {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-            max-width: 700px;
-            margin: auto;
-        }
+.cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
 
-        button {
-            border: none;
-            border-radius: 10px;
-            padding: 18px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            background: #333;
-            color: white;
-            min-width: 160px;
-        }
+.tag {
+    font-size: 12px;
+    color: #75e6a1;
+}
 
-        button:hover {
-            background: #555;
-        }
+#imagem {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    background: #08090b;
+    border-radius: 10px;
+}
 
-        .live {
-            background: #c62828;
-        }
+#semImagem {
+    display: none;
+    background: #08090b;
+    aspect-ratio: 16 / 9;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #b9bbc4;
+    border-radius: 10px;
+    padding: 20px;
+}
 
-        .live:hover {
-            background: #e53935;
-        }
+.info {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #b9bbc4;
+}
 
-        .rec {
-            background: #8e24aa;
-        }
+.info strong {
+    color: white;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
 
-        .rec:hover {
-            background: #ab47bc;
-        }
+label {
+    display: block;
+    font-size: 13px;
+    color: #b9bbc4;
+    margin: 16px 0 8px;
+}
 
-        #status {
-            margin: 30px auto;
-            padding: 15px;
-            max-width: 600px;
-            background: #222;
-            border-radius: 10px;
-        }
-    </style>
+select, button {
+    width: 100%;
+    min-height: 48px;
+    padding: 13px;
+    border: 0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+select {
+    background: #30333c;
+    color: white;
+    border: 1px solid #4a4e59;
+}
+
+button {
+    background: #343740;
+    color: white;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.transicionar {
+    margin-top: 12px;
+    min-height: 68px;
+    font-size: 19px;
+    background: #16864a;
+}
+
+.transicionar:hover { background: #1b9e58; }
+
+.grupo {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.live { background: #b92735; }
+.rec { background: #792da0; }
+
+#status {
+    background: #202228;
+    border-radius: 10px;
+    padding: 13px;
+    margin-top: 16px;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 420px) {
+    body { padding: 12px; }
+    .grupo { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 
 <body>
 
-    <h1>🎥 Painel OBS</h1>
+<h1>🎥 Painel OBS</h1>
+<div class="subtitulo">Controle de transmissão e cenas</div>
 
-    <h2>🎬 Cenas</h2>
-
-    <div class="grupo">
-
-        <button onclick="cena('Gameplay')">
-            🎮 Gameplay
-        </button>
-
-        <button onclick="cena('Camera')">
-            📷 Câmera
-        </button>
-
-        <button onclick="cena('BRB')">
-            ⏸️ BRB
-        </button>
-
+<section class="painel">
+    <div class="cabecalho">
+        <strong>📺 PROGRAMA AO VIVO</strong>
+        <span class="tag" id="conexao">Conectando...</span>
     </div>
 
-    <h2>🔴 Live</h2>
+    <img id="imagem" alt="Prévia da imagem atual do OBS">
+    <div id="semImagem">Aguardando imagem do OBS...</div>
 
-    <div class="grupo">
-
-        <button class="live" onclick="comando('/live/iniciar')">
-            🔴 Iniciar Live
-        </button>
-
-        <button class="live" onclick="comando('/live/parar')">
-            ⛔ Parar Live
-        </button>
-
+    <div class="info">
+        <span>Cena no ar</span>
+        <strong id="cenaAtual">Carregando...</strong>
     </div>
 
-    <h2>⏺️ Gravação</h2>
+    <label for="destino">Próxima cena</label>
+    <select id="destino">
+        <option value="">Carregando cenas...</option>
+    </select>
 
-    <div class="grupo">
+    <button class="transicionar" id="btnTransicao"
+            onclick="transicionar()">
+        ⇄ TRANSICIONAR
+    </button>
+</section>
 
-        <button class="rec" onclick="comando('/gravacao/iniciar')">
-            ⏺️ Iniciar Gravação
-        </button>
+<div id="status">🟡 Conectando ao servidor...</div>
 
-        <button class="rec" onclick="comando('/gravacao/parar')">
-            ⏹️ Parar Gravação
-        </button>
+<h2>🔴 Transmissão</h2>
+<div class="grupo">
+    <button class="live" onclick="comando('/live/iniciar')">
+        🔴 Iniciar Live
+    </button>
+    <button class="live" onclick="comando('/live/parar')">
+        ⛔ Parar Live
+    </button>
+</div>
 
-    </div>
+<h2>⏺️ Gravação</h2>
+<div class="grupo">
+    <button class="rec" onclick="comando('/gravacao/iniciar')">
+        ⏺️ Iniciar Gravação
+    </button>
+    <button class="rec" onclick="comando('/gravacao/parar')">
+        ⏹️ Parar Gravação
+    </button>
+</div>
 
-    <div id="status">
-        🟡 Aguardando comando...
-    </div>
+<script>
+const API = "https://feeding-unit-abroad-least.trycloudflare.com";
 
-    <script>
+let carregando = false;
 
-        // POR ENQUANTO estamos usando o servidor local.
-        const API = "https://store-ministers-thriller-presenting.trycloudflare.com";
+async function requisicao(caminho) {
+    const resposta = await fetch(API + caminho);
+    const dados = await resposta.json();
 
+    if (!resposta.ok || dados.sucesso === false) {
+        throw new Error(dados.erro || "Erro na solicitação.");
+    }
 
-        async function comando(url) {
+    return dados;
+}
 
-            const status =
-                document.getElementById("status");
+function mensagem(texto) {
+    document.getElementById("status").innerText = texto;
+}
 
-            status.innerText =
-                "⏳ Enviando comando...";
+async function comando(url) {
+    try {
+        mensagem("⏳ Enviando comando...");
+        const dados = await requisicao(url);
+        mensagem("✅ " + (dados.mensagem || "Comando executado!"));
+        atualizarStatus();
+    } catch (erro) {
+        mensagem("❌ " + erro.message);
+    }
+}
 
-            try {
+async function carregarCenas() {
+    try {
+        const dados = await requisicao("/cenas");
+        const seletor = document.getElementById("destino");
+        const cenaAnterior = seletor.value;
 
-                const resposta =
-                    await fetch(API + url);
+        seletor.innerHTML = "";
 
-                const dados =
-                    await resposta.json();
+        dados.cenas.forEach(nome => {
+            const opcao = document.createElement("option");
+            opcao.value = nome;
+            opcao.textContent = nome;
+            seletor.appendChild(opcao);
+        });
 
-                if (dados.sucesso) {
-
-                    status.innerText =
-                        "✅ " +
-                        (dados.mensagem ||
-                        "Comando executado!");
-
-                } else {
-
-                    status.innerText =
-                        "❌ " + dados.erro;
-
-                }
-
-            } catch (erro) {
-
-                console.error(erro);
-
-                status.innerText =
-                    "❌ Não foi possível conectar ao servidor.";
-
-            }
+        if (dados.cenas.includes(cenaAnterior)) {
+            seletor.value = cenaAnterior;
+        } else if (dados.cenas.includes(dados.cenaAtual)) {
+            seletor.value = dados.cenaAtual;
         }
 
+        document.getElementById("conexao").textContent =
+            "● Conectado";
+    } catch (erro) {
+        document.getElementById("conexao").textContent =
+            "● Sem conexão";
+        mensagem("❌ Não foi possível carregar as cenas: " + erro.message);
+    }
+}
 
-        function cena(nome) {
+async function atualizarStatus() {
+    try {
+        const dados = await requisicao("/status");
+        document.getElementById("cenaAtual").textContent =
+            dados.cena || "Nenhuma cena";
 
-            comando(
-                "/cena/" +
-                encodeURIComponent(nome)
-            );
+        document.getElementById("conexao").textContent =
+            dados.obsConectado ? "● Conectado" : "● Desconectado";
+    } catch (erro) {
+        document.getElementById("conexao").textContent =
+            "● Sem conexão";
+    }
+}
 
-        }
+async function atualizarImagem() {
+    const imagem = document.getElementById("imagem");
+    const aviso = document.getElementById("semImagem");
 
-    </script>
+    try {
+        const dados = await requisicao("/preview/imagem");
+        imagem.src = dados.imagem;
+        imagem.style.display = "block";
+        aviso.style.display = "none";
+    } catch (erro) {
+        imagem.style.display = "none";
+        aviso.style.display = "flex";
+        aviso.textContent = "Não foi possível carregar a imagem. " +
+            erro.message;
+    }
+}
+
+async function transicionar() {
+    if (carregando) return;
+
+    const destino = document.getElementById("destino").value;
+    const botao = document.getElementById("btnTransicao");
+
+    if (!destino) {
+        mensagem("⚠️ Selecione a próxima cena.");
+        return;
+    }
+
+    carregando = true;
+    botao.disabled = true;
+    botao.textContent = "⏳ Preparando transição...";
+
+    try {
+        await requisicao("/preview/" + encodeURIComponent(destino));
+        await requisicao("/transicionar");
+
+        mensagem("✅ Transição executada para: " + destino);
+
+        await atualizarStatus();
+        await atualizarImagem();
+    } catch (erro) {
+        mensagem("❌ " + erro.message);
+    } finally {
+        carregando = false;
+        botao.disabled = false;
+        botao.textContent = "⇄ TRANSICIONAR";
+    }
+}
+
+carregarCenas();
+atualizarStatus();
+atualizarImagem();
+
+setInterval(atualizarStatus, 3000);
+setInterval(atualizarImagem, 2500);
+</script>
 
 </body>
 </html>
